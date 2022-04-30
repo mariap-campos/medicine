@@ -58,7 +58,7 @@ export function AddRemedy() {
 
   return (
     <>
-      <Header />
+      <Header subtitle="Adicionar Remédio" hasBackButton />
       <ScrollView>
         <View style={styles.container}>
           <Text style={[globalStyles.title, styles.title]}>

@@ -59,15 +59,18 @@ export function Home() {
 
   if (!pills || !routine) {
     return (
-      <View style={globalStyles.loading}>
-        <ActivityIndicator animating color={COLORS.LIGHT_BLUE} size="large" />
-      </View>
+      <>
+        <Header subtitle="Home" />
+        <View style={globalStyles.loading}>
+          <ActivityIndicator animating color={COLORS.LIGHT_BLUE} size="large" />
+        </View>
+      </>
     );
   }
 
   return (
     <>
-      <Header />
+      <Header subtitle="Home" />
       <AddButton />
       <ScrollView>
         <View style={styles.container}>

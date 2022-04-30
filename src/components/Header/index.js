@@ -1,21 +1,34 @@
-import React, { useState } from "react";
-import { Text, View, Image, TouchableOpacity } from "react-native";
-import Home from "../../assets/icons/home.png";
+import React from "react";
+import { Image } from "react-native";
+import { Appbar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
+import Logo from "../../assets/icons/logo.png";
 
-import { styles } from "./styles";
+import { COLORS } from "../../theme";
 
-export function Header() {
+// const MORE_ICON = "dots-vertical";
+
+export function Header({ subtitle, hasBackButton }) {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate("Home")}>
-        <Image source={Home} style={styles.logo} />
-      </TouchableOpacity>
-      {/* <TouchableOpacity onPress={() => loginNavigation.navigate("Login")}>
-        <Image source={{ uri: user?.avatar_url }} style={styles.avatar} />
-      </TouchableOpacity> */}
-    </View>
+    <Appbar.Header
+      style={{
+        backgroundColor: COLORS.LIGHT_BLUE,
+        height: 80,
+      }}
+    >
+      {hasBackButton && (
+        <Appbar.BackAction
+          onPress={() => {
+            navigation.goBack();
+          }}
+        />
+      )}
+
+      <Image source={Logo} style={{ width: 60, height: 45 }} />
+      <Appbar.Content title="Dispensador" subtitle={subtitle} />
+      {/* <Appbar.Action icon={MORE_ICON} onPress={() => {}} /> */}
+    </Appbar.Header>
   );
 }

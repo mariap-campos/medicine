@@ -3,6 +3,8 @@ import { Text, View, Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { MotiView, AnimatePresence } from "moti";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Button, Dialog, Portal } from "react-native-paper";
 import Plus from "../../assets/icons/plus.png";
 import { COLORS } from "../../theme";
 
@@ -10,6 +12,7 @@ import { styles } from "./styles";
 
 export function AddButton() {
   const [menu, setMenu] = useState(false);
+  const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -48,11 +51,40 @@ export function AddButton() {
                 Adicionar Remédio
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("EditRoutine")}
-            >
-              <Text style={styles.menuOption}>Editar Rotina</Text>
+            <TouchableOpacity onPress={() => setVisible(true)}>
+              <Text style={styles.menuOption}>Limpar Dados</Text>
             </TouchableOpacity>
+            <Portal>
+              <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+                <Dialog.Title>
+                  Limpar todos os dados do aplicativo?
+                </Dialog.Title>
+                <Dialog.Content>
+                  <Text>
+                    Esta ação limpará todos os dados salvos no aplicativo e não
+                    poderá ser desfeita
+                  </Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button
+                    color={COLORS.GRAY_DARK}
+                    onPress={() => setVisible(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    color={COLORS.LIGHT_BLUE}
+                    onPress={() => {
+                      AsyncStorage.clear();
+                      navigation.navigate("Home");
+                      setVisible(false);
+                    }}
+                  >
+                    Apagar
+                  </Button>
+                </Dialog.Actions>
+              </Dialog>
+            </Portal>
           </MotiView>
         )}
       </AnimatePresence>

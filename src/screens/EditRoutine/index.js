@@ -146,15 +146,18 @@ export function EditRoutine({ route }) {
 
   if (!pills) {
     return (
-      <View style={globalStyles.loading}>
-        <ActivityIndicator animating color={COLORS.LIGHT_BLUE} size="large" />
-      </View>
+      <>
+        <Header subtitle="Editar Rotina" hasBackButton />
+        <View style={globalStyles.loading}>
+          <ActivityIndicator animating color={COLORS.LIGHT_BLUE} size="large" />
+        </View>
+      </>
     );
   }
 
   return (
     <>
-      <Header />
+      <Header subtitle="Editar Rotina" hasBackButton />
       <ScrollView>
         <View style={styles.container}>
           <Text style={[globalStyles.title, styles.title]}>
