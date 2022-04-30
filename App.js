@@ -14,6 +14,7 @@ import {
 import { Home } from "./src/screens/Home";
 import { AddRemedy } from "./src/screens/AddRemedy";
 import { SnackBarProvider } from "./src/context/snackbar";
+import { EditRoutine } from "./src/screens/EditRoutine";
 
 const Stack = createStackNavigator();
 
@@ -37,6 +38,7 @@ export default function App() {
           >
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="AddRemedy" component={AddRemedy} />
+            <Stack.Screen name="EditRoutine" component={EditRoutine} />
           </Stack.Navigator>
         </SnackBarProvider>
       </NavigationContainer>

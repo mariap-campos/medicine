@@ -48,7 +48,9 @@ export function AddButton() {
                 Adicionar Remédio
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setMenu(!menu)}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("EditRoutine")}
+            >
               <Text style={styles.menuOption}>Editar Rotina</Text>
             </TouchableOpacity>
           </MotiView>

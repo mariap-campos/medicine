@@ -9,16 +9,17 @@ import {
   Portal,
 } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import Pills from "../../assets/icons/medicine.png";
 import { COLORS } from "../../theme";
-
 import useSnackBar from "../../hooks/useSnackbar";
 
 import { styles } from "./styles";
 import { globalStyles } from "../../theme/globalStyles";
 
-export function PillCard({ pills, pill, updateList }) {
+export function PillCard({ pills, routine, pill, updateList }) {
   const { addSnackbar } = useSnackBar();
+  const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +27,20 @@ export function PillCard({ pills, pill, updateList }) {
     setLoading(true);
     try {
       const updatedList = pills.filter((obj) => obj.id !== pill.id);
+
+      routine.forEach((item, index) => {
+        const removedRoutine = item.pills.filter((i) => i.id !== pill.id);
+        routine[index].pills = removedRoutine;
+      });
+
+      routine.forEach((item, index) => {
+        if (item.pills.length === 0) {
+          routine.splice(index, 1);
+        }
+      });
+
       await AsyncStorage.setItem("PILLS", JSON.stringify(updatedList));
+      await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
       setLoading(false);
       updateList();
       addSnackbar(`${pill.name} apagado com sucesso`);
@@ -36,7 +50,7 @@ export function PillCard({ pills, pill, updateList }) {
   };
 
   return (
-    <View key={pill.id}>
+    <View>
       <View style={styles.card}>
         <View style={styles.logoBack}>
           <Image source={Pills} style={styles.logo} />
@@ -48,6 +62,18 @@ export function PillCard({ pills, pill, updateList }) {
           style={{ position: "absolute", right: 0, bottom: -8 }}
           size={24}
           onPress={() => setVisible(true)}
+        />
+        <IconButton
+          icon="clock"
+          color={COLORS.LIGHT_BLUE}
+          style={{ position: "absolute", right: 45, bottom: -8 }}
+          size={24}
+          onPress={() =>
+            navigation.navigate("EditRoutine", {
+              itemId: pill.id,
+              itemName: pill.name,
+            })
+          }
         />
         <Portal>
           <Dialog visible={visible} onDismiss={() => setVisible(false)}>

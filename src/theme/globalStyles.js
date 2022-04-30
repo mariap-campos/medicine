@@ -12,4 +12,7 @@ export const globalStyles = StyleSheet.create({
     fontFamily: FONTS.REGULAR,
     fontSize: 14,
   },
+  loading: {
+    marginTop: 300,
+  },
 });
