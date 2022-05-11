@@ -26,7 +26,10 @@ export function Header({ subtitle, hasBackButton }) {
         />
       )}
 
-      <Image source={Logo} style={{ width: 60, height: 45 }} />
+      <Image
+        source={Logo}
+        style={{ width: 60, height: 45, marginLeft: !hasBackButton ? 50 : 0 }}
+      />
       <Appbar.Content title="Dispensador" subtitle={subtitle} />
       {/* <Appbar.Action icon={MORE_ICON} onPress={() => {}} /> */}
     </Appbar.Header>
