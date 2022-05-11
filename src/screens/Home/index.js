@@ -46,7 +46,6 @@ export function Home() {
   };
 
   useEffect(() => {
-    // AsyncStorage.clear();
     getList();
     getHours();
     const updateList = navigation.addListener("focus", () => {
@@ -71,7 +70,12 @@ export function Home() {
   return (
     <>
       <Header subtitle="Home" />
-      <AddButton />
+      <AddButton
+        updateHome={() => {
+          getList();
+          getHours();
+        }}
+      />
       <ScrollView>
         <View style={styles.container}>
           <Text style={[globalStyles.title, styles.title]}>Meus Remédios</Text>

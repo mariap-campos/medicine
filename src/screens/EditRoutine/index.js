@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView, View, Text } from "react-native";
-import { format } from "date-fns";
+import { format, isBefore, parseISO } from "date-fns";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {
   TextInput,
@@ -67,12 +67,20 @@ export function EditRoutine({ route }) {
     getHours();
   }, []);
 
+  console.debug(routine);
+
   const saveRemedy = async () => {
     try {
       const index = pills.findIndex((item) => item.id === itemId);
       pills[index].hours = updatedHours;
       await AsyncStorage.setItem("PILLS", JSON.stringify(pills));
-      await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
+      await AsyncStorage.setItem(
+        "HOURS",
+        JSON.stringify(
+          routine.sort((a, b) => isBefore(parseISO(a.hour), parseISO(b.hour)))
+        )
+      );
+
       addSnackbar(`Rotina salva com sucesso`);
       navigation.navigate("Home");
     } catch (err) {

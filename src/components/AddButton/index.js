@@ -10,7 +10,7 @@ import { COLORS } from "../../theme";
 
 import { styles } from "./styles";
 
-export function AddButton() {
+export function AddButton({ updateHome }) {
   const [menu, setMenu] = useState(false);
   const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
@@ -76,6 +76,7 @@ export function AddButton() {
                     color={COLORS.LIGHT_BLUE}
                     onPress={() => {
                       AsyncStorage.clear();
+                      updateHome();
                       navigation.navigate("Home");
                       setVisible(false);
                     }}
