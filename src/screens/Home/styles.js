@@ -46,4 +46,16 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 8,
   },
+  empty: {
+    marginRight: 30,
+    display: "flex",
+    flexDirection: "row",
+  },
+  search: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  dropdown: {
+    flex: 1,
+  },
 });

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView, View, Text } from "react-native";
-import { format, isBefore, parseISO } from "date-fns";
+import { format, isAfter, parse } from "date-fns";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {
   TextInput,
@@ -39,7 +39,14 @@ export function EditRoutine({ route }) {
       if (list) {
         setPills(JSON.parse(list));
         const index = JSON.parse(list).findIndex((item) => item.id === itemId);
-        setUpdatedHours(JSON.parse(list)[index].hours);
+        setUpdatedHours(
+          JSON.parse(list)[index].hours.sort((a, b) =>
+            isAfter(
+              parse(a, "HH:mm", new Date()),
+              parse(b, "HH:mm", new Date())
+            )
+          )
+        );
       } else {
         setPills([]);
       }
@@ -67,19 +74,12 @@ export function EditRoutine({ route }) {
     getHours();
   }, []);
 
-  console.debug(routine);
-
   const saveRemedy = async () => {
     try {
       const index = pills.findIndex((item) => item.id === itemId);
       pills[index].hours = updatedHours;
       await AsyncStorage.setItem("PILLS", JSON.stringify(pills));
-      await AsyncStorage.setItem(
-        "HOURS",
-        JSON.stringify(
-          routine.sort((a, b) => isBefore(parseISO(a.hour), parseISO(b.hour)))
-        )
-      );
+      await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
 
       addSnackbar(`Rotina salva com sucesso`);
       navigation.navigate("Home");
@@ -96,7 +96,11 @@ export function EditRoutine({ route }) {
     }
     setLoading(true);
     try {
-      setUpdatedHours([...updatedHours, time]);
+      setUpdatedHours(
+        [...updatedHours, time].sort((a, b) =>
+          isAfter(parse(a, "HH:mm", new Date()), parse(b, "HH:mm", new Date()))
+        )
+      );
 
       if (routine.some((item) => item.hour === time)) {
         const index = routine.findIndex((item) => item.hour === time);

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "782101647962",
+    "project_id": "medicine-7b22d",
+    "storage_bucket": "medicine-7b22d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:782101647962:android:a43d5bc46c73cbb981fe63",
+        "android_client_info": {
+          "package_name": "com.mashpaula.medicine"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "782101647962-ohiqti96aef8sge76864cem2u2nvpl37.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdy0JDIvNRsiAIJYEhTH2y7p4ZpL5VFug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "782101647962-ohiqti96aef8sge76864cem2u2nvpl37.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
