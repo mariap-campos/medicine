@@ -47,4 +47,11 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 15,
   },
+  animation: {
+    display: "flex",
+    alignSelf: "center",
+    width: 100,
+    height: 112,
+    marginVertical: 15,
+  },
 });

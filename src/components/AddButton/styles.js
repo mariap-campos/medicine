@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
-import { COLORS, FONTS } from "../../theme";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
+import { COLORS } from "../../theme";
+
 export const styles = StyleSheet.create({
   container: {
     position: "absolute",

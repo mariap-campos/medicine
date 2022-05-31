@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 import React from "react";
-import { StatusBar } from "expo-status-bar";
 import "react-native-gesture-handler";
 import AppLoading from "expo-app-loading";
 import { Provider as PaperProvider } from "react-native-paper";
@@ -11,12 +10,15 @@ import {
   Poppins_400Regular,
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Home } from "./src/screens/Home";
 import { AddRemedy } from "./src/screens/AddRemedy";
 import { SnackBarProvider } from "./src/context/snackbar";
 import { EditRoutine } from "./src/screens/EditRoutine";
 
 const Stack = createStackNavigator();
+
+// AsyncStorage.clear();
 
 export default function App() {
   const [fontsLoaded] = useFonts({

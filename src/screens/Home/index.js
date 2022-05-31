@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ScrollView, View, Text, Image } from "react-native";
+import { ScrollView, View, Text, Image, FlatList } from "react-native";
 import {
   ActivityIndicator,
   Button,
   Divider,
+  IconButton,
   Avatar,
   Chip,
 } from "react-native-paper";
@@ -14,11 +15,12 @@ import { isAfter, parse } from "date-fns";
 import { Header } from "../../components/Header";
 import Pills from "../../assets/icons/medicine.png";
 import Watch from "../../assets/icons/watch.png";
+import EmptyCup from "../../assets/icons/empty-cup.png";
+import FilledCup from "../../assets/icons/filled-cup.png";
 import { styles } from "./styles";
 import { globalStyles } from "../../theme/globalStyles";
 import { AddButton } from "../../components/AddButton";
 import { COLORS, FONTS } from "../../theme";
-import { PillCard } from "../../components/PillCard";
 import useSnackBar from "../../hooks/useSnackbar";
 
 export function Home() {
@@ -30,25 +32,61 @@ export function Home() {
   const [searchPill, setSearchPill] = useState("");
   const [pillsList, setPillList] = useState();
 
+  const initialState = [
+    {
+      dispenser: "A",
+      hours: [],
+      id: 0,
+      name: null,
+    },
+    {
+      dispenser: "B",
+      hours: [],
+      id: 1,
+      name: null,
+    },
+    {
+      dispenser: "C",
+      hours: [],
+      id: 2,
+      name: null,
+    },
+    {
+      dispenser: "D",
+      hours: [],
+      id: 3,
+      name: null,
+    },
+    {
+      dispenser: "E",
+      hours: [],
+      id: 4,
+      name: null,
+    },
+    {
+      dispenser: "F",
+      hours: [],
+      id: 5,
+      name: null,
+    },
+  ];
+
   const getList = async () => {
     try {
       const list = await AsyncStorage.getItem("PILLS");
-      if (list) {
-        setPills(JSON.parse(list));
+      if (!list) {
+        await AsyncStorage.setItem("PILLS", JSON.stringify(initialState));
+        setPills(initialState);
       } else {
-        setPills([]);
+        setPills(JSON.parse(list));
       }
-    } catch (err) {
-      addSnackbar(`Erro ao carregar remédios`);
-    }
-  };
 
-  const getHours = async () => {
-    try {
-      const list = await AsyncStorage.getItem("HOURS");
-      if (list) {
+      const hourList = await AsyncStorage.getItem("HOURS");
+      if (!hourList) {
+        setRoutine([]);
+      } else {
         setRoutine(
-          JSON.parse(list).sort((a, b) =>
+          JSON.parse(hourList).sort((a, b) =>
             isAfter(
               parse(a.hour, "HH:mm", new Date()),
               parse(b.hour, "HH:mm", new Date())
@@ -57,17 +95,15 @@ export function Home() {
         );
       }
     } catch (err) {
-      addSnackbar(`Erro ao carregar rotina`);
+      addSnackbar(`Erro ao carregar remédios`);
     }
   };
 
   useEffect(() => {
     getList();
-    getHours();
 
     const updateList = navigation.addListener("focus", () => {
       getList();
-      getHours();
     });
 
     return updateList;
@@ -98,7 +134,6 @@ export function Home() {
       <AddButton
         updateHome={() => {
           getList();
-          getHours();
         }}
       />
       <ScrollView>
@@ -125,18 +160,41 @@ export function Home() {
                 </View>
               </View>
             )}
-            {pills.map((pill) => (
-              <PillCard
-                pills={pills}
-                routine={routine}
-                pill={pill}
-                updateList={() => {
-                  getList();
-                  getHours();
-                }}
-                key={pill.id}
+            <View style={{ display: "flex", flexDirection: "row" }}>
+              <FlatList
+                style={styles.list}
+                data={pills}
+                keyExtractor={(pill) => pill.id}
+                numColumns={3}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item, index }) => (
+                  <View>
+                    <IconButton
+                      icon={item.name ? FilledCup : EmptyCup}
+                      color={item.name ? COLORS.LIGHT_BLUE : COLORS.GRAY_DARK}
+                      size={70}
+                      onPress={() =>
+                        navigation.navigate("EditRoutine", {
+                          itemDispenser: item.dispenser,
+                          itemId: item.id,
+                          itemName: item.name,
+                          itemIndex: index,
+                        })
+                      }
+                    />
+                    <Text style={[globalStyles.text, styles.subtitle]}>
+                      {item.dispenser}
+                      {item.name && (
+                        <Text style={{ fontFamily: FONTS.REGULAR }}>
+                          {" "}
+                          - {item.name}
+                        </Text>
+                      )}
+                    </Text>
+                  </View>
+                )}
               />
-            ))}
+            </View>
           </View>
           <Button
             color={COLORS.LIGHT_BLUE}
@@ -151,7 +209,7 @@ export function Home() {
               style={[
                 globalStyles.title,
                 styles.title,
-                { marginTop: 40, marginBottom: 10 },
+                { marginTop: 70, marginBottom: 10 },
               ]}
             >
               Minha Rotina

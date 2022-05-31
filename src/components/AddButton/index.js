@@ -23,6 +23,16 @@ export function AddButton({ updateHome }) {
     return updateList;
   }, []);
 
+  const cleanStorage = async () => {
+    try {
+      await AsyncStorage.clear();
+      updateHome();
+      setVisible(false);
+    } catch (err) {
+      console.log("ERRO AO LIMPAR STORAGE");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={() => setMenu(!menu)}>
@@ -38,19 +48,6 @@ export function AddButton({ updateHome }) {
             exit={{ opacity: 0, translateY: 20 }}
             transition={{ type: "timing", duration: 300 }}
           >
-            <TouchableOpacity onPress={() => navigation.navigate("AddRemedy")}>
-              <Text
-                style={[
-                  styles.menuOption,
-                  {
-                    borderBottomWidth: 1,
-                    borderBottomColor: COLORS.GRAY_PRIMARY,
-                  },
-                ]}
-              >
-                Adicionar Remédio
-              </Text>
-            </TouchableOpacity>
             <TouchableOpacity onPress={() => setVisible(true)}>
               <Text style={styles.menuOption}>Limpar Dados</Text>
             </TouchableOpacity>
@@ -74,12 +71,7 @@ export function AddButton({ updateHome }) {
                   </Button>
                   <Button
                     color={COLORS.LIGHT_BLUE}
-                    onPress={() => {
-                      AsyncStorage.clear();
-                      updateHome();
-                      navigation.navigate("Home");
-                      setVisible(false);
-                    }}
+                    onPress={() => cleanStorage()}
                   >
                     Apagar
                   </Button>

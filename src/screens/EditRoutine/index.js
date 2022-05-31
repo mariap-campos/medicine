@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { ScrollView, View, Text } from "react-native";
+import { ScrollView, View, Text, Image } from "react-native";
 import { format, isAfter, parse } from "date-fns";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {
@@ -11,11 +11,14 @@ import {
   ActivityIndicator,
   IconButton,
   Divider,
+  Portal,
+  Dialog,
 } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import Animation from "../../assets/icons/filling-cup-animation.gif";
 import { Header } from "../../components/Header";
 import "react-native-get-random-values";
-import { COLORS } from "../../theme";
+import { COLORS, FONTS } from "../../theme";
 import { globalStyles } from "../../theme/globalStyles";
 import { styles } from "./styles";
 import useSnackBar from "../../hooks/useSnackbar";
@@ -23,12 +26,17 @@ import useSnackBar from "../../hooks/useSnackbar";
 import { HourCard } from "../../components/HourCard";
 
 export function EditRoutine({ route }) {
-  const { itemId, itemName } = route.params;
+  const { itemId, itemName, itemDispenser, itemIndex } = route.params;
   const { addSnackbar } = useSnackBar();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [deleteVisible, setDeleteVisible] = useState(false);
   const [pills, setPills] = useState();
+  const [inputError, setInputError] = useState();
+  const [hoursError, setHoursError] = useState();
+  const [name, setName] = useState(itemName);
   const [routine, setRoutine] = useState();
   const [updatedHours, setUpdatedHours] = useState([]);
   const [time, setTime] = useState(format(new Date(), "HH:mm"));
@@ -70,14 +78,20 @@ export function EditRoutine({ route }) {
   };
 
   useEffect(() => {
-    getList();
     getHours();
+    getList();
   }, []);
 
   const saveRemedy = async () => {
     try {
-      const index = pills.findIndex((item) => item.id === itemId);
-      pills[index].hours = updatedHours;
+      const newItem = {
+        dispenser: itemDispenser,
+        hours: updatedHours,
+        id: itemIndex,
+        name,
+      };
+
+      pills[itemIndex] = newItem;
       await AsyncStorage.setItem("PILLS", JSON.stringify(pills));
       await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
 
@@ -105,15 +119,12 @@ export function EditRoutine({ route }) {
       if (routine.some((item) => item.hour === time)) {
         const index = routine.findIndex((item) => item.hour === time);
 
-        routine[index].pills = [
-          ...routine[index].pills,
-          { name: itemName, id: itemId },
-        ];
+        routine[index].pills = [...routine[index].pills, { name, id: itemId }];
         setRoutine(routine);
       } else {
         const newHour = {
           hour: time,
-          pills: [{ name: itemName, id: itemId }],
+          pills: [{ name, id: itemId }],
         };
 
         setRoutine([...routine, newHour]);
@@ -156,6 +167,37 @@ export function EditRoutine({ route }) {
     }
   };
 
+  const deleteRemedy = async () => {
+    setLoading(true);
+    try {
+      pills[itemIndex] = {
+        dispenser: itemDispenser,
+        hours: [],
+        id: itemIndex,
+        name: null,
+      };
+
+      routine.forEach((item, index) => {
+        const removedRoutine = item.pills.filter((i) => i.id !== itemId);
+        routine[index].pills = removedRoutine;
+      });
+
+      routine.forEach((item, index) => {
+        if (item.pills.length === 0) {
+          routine.splice(index, 1);
+        }
+      });
+
+      await AsyncStorage.setItem("PILLS", JSON.stringify(pills));
+      await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
+      setLoading(false);
+      navigation.navigate("Home");
+      addSnackbar(`${itemName} apagado com sucesso`);
+    } catch (err) {
+      addSnackbar(`Erro ao apagar ${itemName}. Tente novamente`);
+    }
+  };
+
   if (!pills) {
     return (
       <>
@@ -169,13 +211,96 @@ export function EditRoutine({ route }) {
 
   return (
     <>
+      <Portal>
+        <Dialog
+          visible={deleteVisible}
+          onDismiss={() => setDeleteVisible(false)}
+        >
+          <Dialog.Title>Apagar {itemName}?</Dialog.Title>
+          <Dialog.Content>
+            <Text>
+              Tem certeza que deseja apagar este remédio? Esta ação excluirá
+              todas as rotinas dele.
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              color={COLORS.GRAY_DARK}
+              onPress={() => setDeleteVisible(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              color={COLORS.LIGHT_BLUE}
+              loading={loading}
+              onPress={() => {
+                deleteRemedy();
+                setDeleteVisible(false);
+              }}
+            >
+              Apagar
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      <Portal>
+        <Dialog visible={modalVisible} onDismiss={() => setModalVisible(false)}>
+          <Dialog.Title>
+            {name} - Dispenser {itemDispenser}
+          </Dialog.Title>
+          <Image source={Animation} style={styles.animation} />
+          <Dialog.Content>
+            <Text
+              style={[
+                globalStyles.text,
+                { marginTop: 20, textAlign: "justify" },
+              ]}
+            >
+              Ao clicar em salvar, não se esqueca de adicionar o remédio{" "}
+              <Text style={{ fontFamily: FONTS.BOLD }}>{name}</Text> no
+              <Text style={{ fontFamily: FONTS.BOLD }}>
+                {" "}
+                Dispenser {itemDispenser}{" "}
+              </Text>
+              de se dispenser automatico
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              color={COLORS.GRAY_DARK}
+              onPress={() => setModalVisible(false)}
+            >
+              Cancelar
+            </Button>
+            <Button color={COLORS.LIGHT_BLUE} onPress={() => saveRemedy()}>
+              Salvar
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
       <Header subtitle="Editar Rotina" hasBackButton />
       <ScrollView>
         <View style={styles.container}>
           <Text style={[globalStyles.title, styles.title]}>
-            Editar Rotina - {itemName}
+            {itemName
+              ? `Editar Remédio - Dispenser ${itemDispenser}`
+              : `Novo Remédio - Dispenser ${itemDispenser}`}
           </Text>
-          <Text style={[globalStyles.text]}>Selecione o horário</Text>
+          <TextInput
+            label="Nome do Remédio"
+            value={name}
+            error={inputError}
+            activeUnderlineColor={COLORS.LIGHT_BLUE}
+            onChangeText={(text) => setName(text)}
+          />
+          {inputError && (
+            <Text style={[globalStyles.text, { color: COLORS.RED }]}>
+              Nome do remédio não pode ser nulo
+            </Text>
+          )}
+          <Text style={[globalStyles.text, { marginTop: 30 }]}>
+            Selecione os horários
+          </Text>
           <View style={styles.selectTime}>
             <View style={styles.ghostView}>
               <TouchableOpacity
@@ -224,22 +349,62 @@ export function EditRoutine({ route }) {
             <HourCard
               key={hour}
               hour={hour}
-              name={itemName}
+              name={name}
               deleteHour={deleteRoutine}
               loading={loading}
             />
           ))}
+          {hoursError && (
+            <Text style={[globalStyles.text, { color: COLORS.RED }]}>
+              É preciso cadastrar pelo menos um horário
+            </Text>
+          )}
+          <View style={{ display: "flex", flexDirection: "row" }}>
+            {itemName && (
+              <Button
+                icon="delete"
+                color={COLORS.GRAY_PRIMARY}
+                style={{ marginTop: 30, marginRight: 16, flex: 1 }}
+                mode="contained"
+                loading={loading}
+                onPress={() => {
+                  setDeleteVisible(true);
+                }}
+              >
+                Apagar
+              </Button>
+            )}
+            <Button
+              icon="content-save"
+              color={COLORS.LIGHT_BLUE}
+              style={{ marginTop: 30, flex: 1 }}
+              mode="contained"
+              loading={loading}
+              onPress={() => {
+                if (name === "" || name === null) {
+                  setInputError(true);
+                } else {
+                  setInputError(false);
+                }
+                if (updatedHours.length === 0) {
+                  setHoursError(true);
+                } else {
+                  setHoursError(false);
+                }
 
-          <Button
-            icon="content-save"
-            color={COLORS.LIGHT_BLUE}
-            style={{ marginTop: 30 }}
-            mode="contained"
-            loading={loading}
-            onPress={() => saveRemedy()}
-          >
-            Salvar
-          </Button>
+                if (name === "" || name === null || updatedHours.length === 0)
+                  return;
+
+                if (itemName) {
+                  saveRemedy();
+                } else {
+                  setModalVisible(true);
+                }
+              }}
+            >
+              Salvar
+            </Button>
+          </View>
         </View>
       </ScrollView>
     </>

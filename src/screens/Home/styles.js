@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "../../theme";
+import { COLORS, FONTS } from "../../theme";
 
 export const styles = StyleSheet.create({
   container: {
@@ -57,5 +57,11 @@ export const styles = StyleSheet.create({
   },
   dropdown: {
     flex: 1,
+  },
+  subtitle: {
+    fontFamily: FONTS.BOLD,
+    display: "flex",
+    alignSelf: "center",
+    marginTop: -15,
   },
 });
