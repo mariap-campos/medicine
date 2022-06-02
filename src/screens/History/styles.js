@@ -6,6 +6,6 @@ export const styles = StyleSheet.create({
     padding: 25,
   },
   title: {
-    marginBottom: 20,
+    marginBottom: 5,
   },
 });

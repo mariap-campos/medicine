@@ -3,7 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ScrollView, View, Text, Image, FlatList } from "react-native";
 import {
   ActivityIndicator,
-  Button,
   Divider,
   IconButton,
   Avatar,
@@ -19,7 +18,6 @@ import EmptyCup from "../../assets/icons/empty-cup.png";
 import FilledCup from "../../assets/icons/filled-cup.png";
 import { styles } from "./styles";
 import { globalStyles } from "../../theme/globalStyles";
-import { AddButton } from "../../components/AddButton";
 import { COLORS, FONTS } from "../../theme";
 import useSnackBar from "../../hooks/useSnackbar";
 
@@ -95,6 +93,7 @@ export function Home() {
         );
       }
     } catch (err) {
+      console.debug(err);
       addSnackbar(`Erro ao carregar remédios`);
     }
   };
@@ -130,12 +129,7 @@ export function Home() {
 
   return (
     <>
-      <Header subtitle="Home" />
-      <AddButton
-        updateHome={() => {
-          getList();
-        }}
-      />
+      <Header subtitle="Home" updateHome={getList} />
       <ScrollView>
         <View style={styles.container}>
           <Text style={[globalStyles.title, styles.title]}>Meus Remédios</Text>
@@ -196,20 +190,12 @@ export function Home() {
               />
             </View>
           </View>
-          <Button
-            color={COLORS.LIGHT_BLUE}
-            style={{ marginTop: 15 }}
-            mode="contained"
-            onPress={() => navigation.navigate("AddRemedy")}
-          >
-            Adicionar Remédios
-          </Button>
           <View>
             <Text
               style={[
                 globalStyles.title,
                 styles.title,
-                { marginTop: 70, marginBottom: 10 },
+                { marginTop: 40, marginBottom: 10 },
               ]}
             >
               Minha Rotina
@@ -235,7 +221,7 @@ export function Home() {
                     onDismiss={() => setShowDropDown(false)}
                     value={searchPill}
                     setValue={setSearchPill}
-                    list={pillsList}
+                    list={pillsList.filter((item) => item.label)}
                     activeColor={COLORS.LIGHT_BLUE}
                     multiSelect
                   />
@@ -259,7 +245,7 @@ export function Home() {
                 Limpar Filtro
               </Chip>
             )}
-            <View>
+            <View style={{ marginBottom: 80 }}>
               {routine.length === 0 && (
                 <View style={styles.empty}>
                   <Avatar.Icon
@@ -269,12 +255,12 @@ export function Home() {
                     style={{
                       marginLeft: -10,
                       backgroundColor: COLORS.GRAY_SECONDARY,
-                      marginTop: -15,
+                      marginTop: -10,
                     }}
                   />
                   <View>
                     <Text style={globalStyles.text}>
-                      Nenhuma rotina cadastrada ainda.
+                      Cadastre uma rotina em um dispenser para começar.
                     </Text>
                   </View>
                 </View>

@@ -10,15 +10,13 @@ import {
   Poppins_400Regular,
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { Home } from "./src/screens/Home";
-import { AddRemedy } from "./src/screens/AddRemedy";
+import { History } from "./src/screens/History";
 import { SnackBarProvider } from "./src/context/snackbar";
 import { EditRoutine } from "./src/screens/EditRoutine";
 
 const Stack = createStackNavigator();
-
-// AsyncStorage.clear();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -34,12 +32,16 @@ export default function App() {
       <NavigationContainer>
         <SnackBarProvider>
           <Stack.Navigator
-            screenOptions={{
-              headerShown: false,
-            }}
+            screenOptions={{ animationEnabled: false, headerShown: false }}
           >
-            <Stack.Screen name="Home" component={Home} />
-            <Stack.Screen name="AddRemedy" component={AddRemedy} />
+            <Stack.Screen
+              name="Home"
+              component={Home}
+              options={{
+                animationEnabled: false,
+              }}
+            />
+            <Stack.Screen name="History" component={History} />
             <Stack.Screen name="EditRoutine" component={EditRoutine} />
           </Stack.Navigator>
         </SnackBarProvider>

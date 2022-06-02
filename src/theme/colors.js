@@ -8,7 +8,7 @@ export const COLORS = {
   BEIGE: "#F9EDDF",
   DARK_PINK: "#D56E67",
   PINK: "#EFAF96",
-  GREEN: "#B1D8BE",
+  GREEN: "#40d6af",
 
   BLACK_PRIMARY: "#121214",
   BLACK_SECONDARY: "#1B1B1F",
