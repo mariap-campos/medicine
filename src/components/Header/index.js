@@ -99,6 +99,10 @@ export function Header({ subtitle, updateHome }) {
           <IconButton icon="history" color={COLORS.WHITE} size={25} />
           <Text style={styles.navText}>Histórico</Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Stats")}>
+          <IconButton icon="chart-line" color={COLORS.WHITE} size={25} />
+          <Text style={styles.navText}>Estatísticas</Text>
+        </TouchableOpacity>
       </View>
     </>
   );

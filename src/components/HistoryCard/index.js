@@ -2,12 +2,11 @@
 import React, { useState, useRef } from "react";
 import { Text, View, Animated, TouchableOpacity } from "react-native";
 import { Button, Chip, Divider } from "react-native-paper";
-
 import { styles } from "./styles";
 import { globalStyles } from "../../theme/globalStyles";
 import { COLORS } from "../../theme";
 
-export function HistoryCard({ meds }) {
+export function HistoryCard({ hour, meds }) {
   const [expanded, setExpanded] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const heightAnim = useRef(new Animated.Value(0)).current;
@@ -19,15 +18,14 @@ export function HistoryCard({ meds }) {
   };
 
   const fadeIn = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
     Animated.timing(fadeAnim, {
       toValue: expanded ? 0 : 1,
       duration: 350,
+      useNativeDriver: false,
     }).start();
   };
 
   const collapse = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
     Animated.timing(heightAnim, {
       toValue: expanded ? 0 : meds.length * 52,
       duration: 300,
@@ -61,7 +59,7 @@ export function HistoryCard({ meds }) {
         >
           Ingerido
         </Chip>
-        <Text style={[globalStyles.title, styles.title]}>08:00</Text>
+        <Text style={[globalStyles.title, styles.title]}>{hour}</Text>
       </View>
       <View />
       <Button type="outlined" color={COLORS.GRAY_PRIMARY} style={styles.button}>

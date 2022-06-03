@@ -154,7 +154,7 @@ export function Home() {
                 </View>
               </View>
             )}
-            <View style={{ display: "flex", flexDirection: "row" }}>
+            <View style={globalStyles.flex}>
               <FlatList
                 style={styles.list}
                 data={pills}

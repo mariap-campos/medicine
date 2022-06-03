@@ -15,4 +15,8 @@ export const globalStyles = StyleSheet.create({
   loading: {
     marginTop: 300,
   },
+  flex: {
+    display: "flex",
+    flexDirection: "row",
+  },
 });

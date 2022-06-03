@@ -359,7 +359,7 @@ export function EditRoutine({ route }) {
               É preciso cadastrar pelo menos um horário
             </Text>
           )}
-          <View style={{ display: "flex", flexDirection: "row" }}>
+          <View style={globalStyles.flex}>
             {itemName && (
               <Button
                 icon="delete"
