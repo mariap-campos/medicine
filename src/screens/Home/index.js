@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ScrollView, View, Text, Image, FlatList } from "react-native";
+import { ScrollView, View, Text, FlatList } from "react-native";
 import {
   ActivityIndicator,
   Divider,
@@ -12,8 +12,6 @@ import { useNavigation } from "@react-navigation/native";
 import DropDown from "react-native-paper-dropdown";
 import { isAfter, parse } from "date-fns";
 import { Header } from "../../components/Header";
-import Pills from "../../assets/icons/medicine.png";
-import Watch from "../../assets/icons/watch.png";
 import EmptyCup from "../../assets/icons/empty-cup.png";
 import FilledCup from "../../assets/icons/filled-cup.png";
 import { styles } from "./styles";
@@ -116,6 +114,9 @@ export function Home() {
     }
   }, [pills]);
 
+  const hasPassed = (hour) =>
+    isAfter(new Date(), parse(hour, "HH:mm", new Date()));
+
   if (!pills || !routine) {
     return (
       <>
@@ -132,7 +133,7 @@ export function Home() {
       <Header subtitle="Home" updateHome={getList} />
       <ScrollView>
         <View style={styles.container}>
-          <Text style={[globalStyles.title, styles.title]}>Meus Remédios</Text>
+          <Text style={globalStyles.title}>Meus Remédios</Text>
           <View>
             {pills.length === 0 && (
               <View style={styles.empty}>
@@ -176,15 +177,31 @@ export function Home() {
                         })
                       }
                     />
-                    <Text style={[globalStyles.text, styles.subtitle]}>
+                    <Text
+                      style={[
+                        globalStyles.text,
+                        styles.subtitle,
+                        {
+                          color: item.name
+                            ? COLORS.LIGHT_BLUE
+                            : COLORS.GRAY_DARK,
+                        },
+                      ]}
+                    >
                       {item.dispenser}
-                      {item.name && (
-                        <Text style={{ fontFamily: FONTS.REGULAR }}>
-                          {" "}
-                          - {item.name}
-                        </Text>
-                      )}
                     </Text>
+                    {item.name && (
+                      <Text
+                        style={{
+                          fontFamily: FONTS.REGULAR,
+                          color: COLORS.GRAY_DARK,
+                          alignSelf: "center",
+                          marginTop: -5,
+                        }}
+                      >
+                        {item.name}
+                      </Text>
+                    )}
                   </View>
                 )}
               />
@@ -266,30 +283,54 @@ export function Home() {
                 </View>
               )}
               {routine.map((time) => (
-                <View key={time.hour}>
+                <View
+                  key={time.hour}
+                  style={[
+                    styles.routine,
+                    {
+                      borderLeftColor: hasPassed(time.hour)
+                        ? COLORS.LIGHT_BLUE
+                        : COLORS.GRAY_DARK,
+                    },
+                  ]}
+                >
                   <View style={styles.time}>
-                    <Image source={Watch} style={styles.watchImage} />
-                    <Text style={globalStyles.title}>{time.hour}</Text>
+                    <View
+                      style={{
+                        width: 25,
+                        height: 25,
+                        backgroundColor: COLORS.GRAY_SECONDARY,
+                      }}
+                    >
+                      <IconButton
+                        icon={hasPassed(time.hour) ? "clock" : "clock-outline"}
+                        size={30}
+                        color={
+                          hasPassed(time.hour)
+                            ? COLORS.LIGHT_BLUE
+                            : COLORS.GRAY_DARK
+                        }
+                        style={{ marginLeft: -10, marginTop: -10 }}
+                      />
+                    </View>
+                    <Text style={[globalStyles.title, { marginLeft: 10 }]}>
+                      {time.hour}
+                    </Text>
                   </View>
                   {time.pills.map((pill) =>
                     // eslint-disable-next-line no-nested-ternary
                     searchPill === "" ? (
                       <View style={styles.cardSmall} key={pill.id}>
-                        <View style={styles.logoBack}>
-                          <Image source={Pills} style={styles.logo} />
-                        </View>
-                        <Text style={[globalStyles.text, styles.name]}>
+                        <Chip
+                          icon="pill"
+                          textStyle={{ color: COLORS.GRAY_DARK }}
+                        >
                           {pill.name}
-                        </Text>
+                        </Chip>
                       </View>
                     ) : searchPill.includes(pill.name) ? (
                       <View style={styles.cardSmall} key={pill.id}>
-                        <View style={styles.logoBack}>
-                          <Image source={Pills} style={styles.logo} />
-                        </View>
-                        <Text style={[globalStyles.text, styles.name]}>
-                          {pill.name}
-                        </Text>
+                        <Chip icon="pill">{pill.name}</Chip>
                       </View>
                     ) : null
                   )}

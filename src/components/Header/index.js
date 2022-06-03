@@ -12,6 +12,7 @@ import {
   Portal,
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import Logo from "../../assets/icons/logo.png";
 
 import { COLORS } from "../../theme";
@@ -53,43 +54,52 @@ export function Header({ subtitle, updateHome }) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-      <Appbar.Header
-        style={{
-          backgroundColor: COLORS.LIGHT_BLUE,
-          height: 80,
-        }}
+      <LinearGradient
+        colors={[COLORS.BLUE, COLORS.LIGHT_BLUE]}
+        style={styles.container}
       >
-        <Image
-          source={Logo}
-          style={{ width: 60, height: 45, marginLeft: 15 }}
-        />
-        <Appbar.Content title="Dispensador" subtitle={subtitle} />
-
-        <Menu
-          style={{ marginRight: 30, marginTop: 40 }}
-          visible={visible}
-          onDismiss={() => setVisible(false)}
-          anchor={
-            <Appbar.Action
-              icon="dots-vertical"
-              color={COLORS.WHITE}
-              onPress={() => setVisible(true)}
-            />
-          }
+        <Appbar.Header
+          dark
+          style={{
+            height: 80,
+            backgroundColor: "transparent",
+            borderWidth: 0,
+            shadowOpacity: 0,
+          }}
         >
-          <Menu.Item
-            icon="help-circle-outline"
-            onPress={() => {}}
-            title="Ajuda"
+          <Image
+            source={Logo}
+            style={{ width: 60, height: 45, marginLeft: 15 }}
           />
-          <Divider />
-          <Menu.Item
-            icon="delete"
-            onPress={() => setDialog(!dialog)}
-            title="Limpar Dados"
-          />
-        </Menu>
-      </Appbar.Header>
+
+          <Appbar.Content title="Dispensador" subtitle={subtitle} />
+
+          <Menu
+            style={{ marginRight: 30, marginTop: 40 }}
+            visible={visible}
+            onDismiss={() => setVisible(false)}
+            anchor={
+              <Appbar.Action
+                icon="dots-vertical"
+                color={COLORS.WHITE}
+                onPress={() => setVisible(true)}
+              />
+            }
+          >
+            <Menu.Item
+              icon="help-circle-outline"
+              onPress={() => {}}
+              title="Ajuda"
+            />
+            <Divider />
+            <Menu.Item
+              icon="delete"
+              onPress={() => setDialog(!dialog)}
+              title="Limpar Dados"
+            />
+          </Menu>
+        </Appbar.Header>
+      </LinearGradient>
       <View style={styles.bottomNavigation}>
         <TouchableOpacity onPress={() => navigation.navigate("Home")}>
           <IconButton icon="home" color={COLORS.WHITE} size={25} />

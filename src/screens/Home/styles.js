@@ -33,6 +33,7 @@ export const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     marginTop: 20,
+    marginLeft: -13,
   },
   watchImage: {
     width: 25,
@@ -60,8 +61,13 @@ export const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: FONTS.BOLD,
-    display: "flex",
+    color: COLORS.LIGHT_BLUE,
     alignSelf: "center",
-    marginTop: -15,
+    marginTop: -20,
+  },
+  routine: {
+    marginLeft: 10,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.GRAY_DARK,
   },
 });
