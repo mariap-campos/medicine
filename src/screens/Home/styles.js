@@ -70,4 +70,7 @@ export const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: COLORS.GRAY_DARK,
   },
+  list: {
+    display: "flex",
+  },
 });

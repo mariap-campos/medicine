@@ -15,6 +15,7 @@ import {
   Dialog,
 } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import firebase from "firebase/compat/app";
 import Animation from "../../assets/icons/filling-cup-animation.gif";
 import { Header } from "../../components/Header";
 import "react-native-get-random-values";
@@ -22,6 +23,10 @@ import { COLORS, FONTS } from "../../theme";
 import { globalStyles } from "../../theme/globalStyles";
 import { styles } from "./styles";
 import useSnackBar from "../../hooks/useSnackbar";
+
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
+import "firebase/compat/database";
 
 import { HourCard } from "../../components/HourCard";
 
@@ -33,31 +38,38 @@ export function EditRoutine({ route }) {
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteVisible, setDeleteVisible] = useState(false);
-  const [pills, setPills] = useState();
   const [inputError, setInputError] = useState();
   const [hoursError, setHoursError] = useState();
   const [name, setName] = useState(itemName);
   const [routine, setRoutine] = useState();
-  const [updatedHours, setUpdatedHours] = useState([]);
+
+  const [updatedHours, setUpdatedHours] = useState();
+  const [info, setInfo] = useState();
+
   const [time, setTime] = useState(format(new Date(), "HH:mm"));
 
   const getList = async () => {
     try {
-      const list = await AsyncStorage.getItem("PILLS");
-      if (list) {
-        setPills(JSON.parse(list));
-        const index = JSON.parse(list).findIndex((item) => item.id === itemId);
-        setUpdatedHours(
-          JSON.parse(list)[index].hours.sort((a, b) =>
-            isAfter(
-              parse(a, "HH:mm", new Date()),
-              parse(b, "HH:mm", new Date())
-            )
-          )
-        );
-      } else {
-        setPills([]);
-      }
+      firebase
+        .database()
+        .ref(itemDispenser)
+        .on("value", (snapshot) => {
+          const infoPill = snapshot.val();
+          setInfo(infoPill);
+
+          if (infoPill.hours) {
+            setUpdatedHours(
+              infoPill.hours.sort((a, b) =>
+                isAfter(
+                  parse(a, "HH:mm", new Date()),
+                  parse(b, "HH:mm", new Date())
+                )
+              )
+            );
+          } else {
+            setUpdatedHours([]);
+          }
+        });
     } catch (err) {
       console.debug(err);
       addSnackbar(`Erro ao carregar remédios`);
@@ -91,8 +103,10 @@ export function EditRoutine({ route }) {
         name,
       };
 
-      pills[itemIndex] = newItem;
-      await AsyncStorage.setItem("PILLS", JSON.stringify(pills));
+      setInfo(newItem);
+
+      const dispenser = firebase.database().ref(itemDispenser);
+      dispenser.set(newItem);
       await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
 
       addSnackbar(`Rotina salva com sucesso`);
@@ -109,6 +123,7 @@ export function EditRoutine({ route }) {
       return null;
     }
     setLoading(true);
+
     try {
       setUpdatedHours(
         [...updatedHours, time].sort((a, b) =>
@@ -139,10 +154,15 @@ export function EditRoutine({ route }) {
   const deleteRoutine = async (hour) => {
     setLoading(true);
     try {
-      const index = pills.findIndex((item) => item.id === itemId);
       const removedHours = updatedHours.filter((item) => item !== hour);
-      pills[index].hours = removedHours;
+      const updatedItem = {
+        dispenser: itemDispenser,
+        hours: removedHours,
+        id: itemIndex,
+        name,
+      };
 
+      setInfo(updatedItem);
       const hourIndex = routine.findIndex((item) => item.hour === hour);
 
       if (routine[hourIndex].pills.length === 1) {
@@ -154,7 +174,8 @@ export function EditRoutine({ route }) {
         routine[hourIndex].pills = removedRoutine;
       }
 
-      await AsyncStorage.setItem("PILLS", JSON.stringify(pills));
+      const dispenser = firebase.database().ref(itemDispenser);
+      dispenser.set(updatedItem);
       await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
 
       getList();
@@ -170,12 +191,12 @@ export function EditRoutine({ route }) {
   const deleteRemedy = async () => {
     setLoading(true);
     try {
-      pills[itemIndex] = {
+      const dispenser = firebase.database().ref(itemDispenser);
+      dispenser.set({
         dispenser: itemDispenser,
-        hours: [],
         id: itemIndex,
         name: null,
-      };
+      });
 
       routine.forEach((item, index) => {
         const removedRoutine = item.pills.filter((i) => i.id !== itemId);
@@ -188,7 +209,6 @@ export function EditRoutine({ route }) {
         }
       });
 
-      await AsyncStorage.setItem("PILLS", JSON.stringify(pills));
       await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
       setLoading(false);
       navigation.navigate("Home");
@@ -198,7 +218,7 @@ export function EditRoutine({ route }) {
     }
   };
 
-  if (!pills) {
+  if (!info) {
     return (
       <>
         <Header subtitle="Editar Rotina" hasBackButton />
@@ -262,7 +282,7 @@ export function EditRoutine({ route }) {
                 {" "}
                 Dispenser {itemDispenser}{" "}
               </Text>
-              de se dispenser automatico
+              de seu dispenser automatico
             </Text>
           </Dialog.Content>
           <Dialog.Actions>

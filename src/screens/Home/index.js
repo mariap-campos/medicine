@@ -11,6 +11,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import DropDown from "react-native-paper-dropdown";
 import { isAfter, parse } from "date-fns";
+import firebase from "firebase/compat/app";
 import { Header } from "../../components/Header";
 import EmptyCup from "../../assets/icons/empty-cup.png";
 import FilledCup from "../../assets/icons/filled-cup.png";
@@ -18,6 +19,10 @@ import { styles } from "./styles";
 import { globalStyles } from "../../theme/globalStyles";
 import { COLORS, FONTS } from "../../theme";
 import useSnackBar from "../../hooks/useSnackbar";
+
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
+import "firebase/compat/database";
 
 export function Home() {
   const navigation = useNavigation();
@@ -28,55 +33,22 @@ export function Home() {
   const [searchPill, setSearchPill] = useState("");
   const [pillsList, setPillList] = useState();
 
-  const initialState = [
-    {
-      dispenser: "A",
-      hours: [],
-      id: 0,
-      name: null,
-    },
-    {
-      dispenser: "B",
-      hours: [],
-      id: 1,
-      name: null,
-    },
-    {
-      dispenser: "C",
-      hours: [],
-      id: 2,
-      name: null,
-    },
-    {
-      dispenser: "D",
-      hours: [],
-      id: 3,
-      name: null,
-    },
-    {
-      dispenser: "E",
-      hours: [],
-      id: 4,
-      name: null,
-    },
-    {
-      dispenser: "F",
-      hours: [],
-      id: 5,
-      name: null,
-    },
-  ];
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdyRG_G1Bg7rw7-QHvkF2YtoeB3bEJS88",
+    authDomain: "medicine-49e2c.firebaseapp.com",
+    databaseURL: "https://medicine-49e2c-default-rtdb.firebaseio.com",
+    projectId: "medicine-49e2c",
+    storageBucket: "medicine-49e2c.appspot.com",
+    messagingSenderId: "44152165212",
+    appId: "1:44152165212:web:bbe6c4c64a58886087e799",
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
 
   const getList = async () => {
     try {
-      const list = await AsyncStorage.getItem("PILLS");
-      if (!list) {
-        await AsyncStorage.setItem("PILLS", JSON.stringify(initialState));
-        setPills(initialState);
-      } else {
-        setPills(JSON.parse(list));
-      }
-
       const hourList = await AsyncStorage.getItem("HOURS");
       if (!hourList) {
         setRoutine([]);
@@ -104,6 +76,28 @@ export function Home() {
     });
 
     return updateList;
+  }, []);
+
+  useEffect(() => {
+    firebase
+      .database()
+      .ref("A")
+      .on("value", (snapshot) => {
+        const status = [snapshot.val()];
+        firebase
+          .database()
+          .ref("B")
+          .on("value", (snapshotB) => {
+            status.push(snapshotB.val());
+            firebase
+              .database()
+              .ref("C")
+              .on("value", (snapshotC) => {
+                status.push(snapshotC.val());
+                setPills(status);
+              });
+          });
+      });
   }, []);
 
   useEffect(() => {
@@ -135,39 +129,20 @@ export function Home() {
         <View style={styles.container}>
           <Text style={globalStyles.title}>Meus Remédios</Text>
           <View>
-            {pills.length === 0 && (
-              <View style={styles.empty}>
-                <Avatar.Icon
-                  size={52}
-                  icon="text-search"
-                  color={COLORS.GRAY_PRIMARY}
-                  style={{
-                    marginLeft: -10,
-                    backgroundColor: COLORS.GRAY_SECONDARY,
-                    marginBottom: 10,
-                  }}
-                />
-                <View>
-                  <Text style={globalStyles.text}>Nada cadastrado ainda.</Text>
-                  <Text style={globalStyles.text}>
-                    Clique no botão abaixo para adicionar um remédio
-                  </Text>
-                </View>
-              </View>
-            )}
             <View style={globalStyles.flex}>
               <FlatList
                 style={styles.list}
+                columnWrapperStyle={{ justifyContent: "space-around" }}
                 data={pills}
                 keyExtractor={(pill) => pill.id}
-                numColumns={3}
+                numColumns={2}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item, index }) => (
                   <View>
                     <IconButton
                       icon={item.name ? FilledCup : EmptyCup}
                       color={item.name ? COLORS.LIGHT_BLUE : COLORS.GRAY_DARK}
-                      size={70}
+                      size={85}
                       onPress={() =>
                         navigation.navigate("EditRoutine", {
                           itemDispenser: item.dispenser,
