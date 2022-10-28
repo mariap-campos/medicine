@@ -71,6 +71,7 @@ export const styles = StyleSheet.create({
     borderLeftColor: COLORS.GRAY_DARK,
   },
   list: {
+    marginTop: 10,
     display: "flex",
   },
 });

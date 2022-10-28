@@ -23,6 +23,7 @@ import useSnackBar from "../../hooks/useSnackbar";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 import "firebase/compat/database";
+import { formatHourMinute } from "../../utils/formatHour";
 
 export function Home() {
   const navigation = useNavigation();
@@ -50,6 +51,7 @@ export function Home() {
   const getList = async () => {
     try {
       const hourList = await AsyncStorage.getItem("HOURS");
+
       if (!hourList) {
         setRoutine([]);
       } else {
@@ -81,20 +83,45 @@ export function Home() {
   useEffect(() => {
     firebase
       .database()
-      .ref("A")
+      .ref("0")
       .on("value", (snapshot) => {
-        const status = [snapshot.val()];
+        const status = [
+          {
+            ...snapshot.val(),
+            horariosFormatados: formatHourMinute(snapshot.val().horarios),
+          },
+        ];
         firebase
           .database()
-          .ref("B")
+          .ref("1")
           .on("value", (snapshotB) => {
-            status.push(snapshotB.val());
+            status.push({
+              ...snapshotB.val(),
+              horariosFormatados: formatHourMinute(snapshotB.val().horarios),
+            });
             firebase
               .database()
-              .ref("C")
+              .ref("2")
               .on("value", (snapshotC) => {
-                status.push(snapshotC.val());
-                setPills(status);
+                status.push({
+                  ...snapshotC.val(),
+                  horariosFormatados: formatHourMinute(
+                    snapshotC.val().horarios
+                  ),
+                });
+                firebase
+                  .database()
+                  .ref("3")
+                  .on("value", (snapshotD) => {
+                    status.push({
+                      ...snapshotD.val(),
+                      horariosFormatados: formatHourMinute(
+                        snapshotD.val().horarios
+                      ),
+                    });
+
+                    setPills(status);
+                  });
               });
           });
       });
@@ -103,7 +130,7 @@ export function Home() {
   useEffect(() => {
     if (pills) {
       setPillList(
-        pills.map((pill) => ({ label: pill.name, value: pill.name }))
+        pills.map((pill) => ({ label: pill.nome, value: pill.nome }))
       );
     }
   }, [pills]);
@@ -139,15 +166,27 @@ export function Home() {
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item, index }) => (
                   <View>
+                    {item.nome && (
+                      <Text
+                        style={{
+                          fontFamily: FONTS.BOLD,
+                          color: COLORS.GRAY_DARK,
+                          alignSelf: "center",
+                          marginBottom: -25,
+                        }}
+                      >
+                        {item.nome}
+                      </Text>
+                    )}
                     <IconButton
-                      icon={item.name ? FilledCup : EmptyCup}
-                      color={item.name ? COLORS.LIGHT_BLUE : COLORS.GRAY_DARK}
+                      icon={item.nome ? FilledCup : EmptyCup}
+                      color={item.nome ? COLORS.LIGHT_BLUE : COLORS.GRAY_DARK}
                       size={85}
                       onPress={() =>
                         navigation.navigate("EditRoutine", {
-                          itemDispenser: item.dispenser,
+                          itemDispenser: item.slot.toString(),
                           itemId: item.id,
-                          itemName: item.name,
+                          itemName: item.nome,
                           itemIndex: index,
                         })
                       }
@@ -157,26 +196,26 @@ export function Home() {
                         globalStyles.text,
                         styles.subtitle,
                         {
-                          color: item.name
+                          color: item.nome
                             ? COLORS.LIGHT_BLUE
                             : COLORS.GRAY_DARK,
                         },
                       ]}
                     >
-                      {item.dispenser}
+                      {item.slot}
                     </Text>
-                    {item.name && (
+                    {/* {item.nome && (
                       <Text
                         style={{
-                          fontFamily: FONTS.REGULAR,
+                          fontFamily: FONTS.BOLD,
                           color: COLORS.GRAY_DARK,
                           alignSelf: "center",
                           marginTop: -5,
                         }}
                       >
-                        {item.name}
+                        {item.nome}
                       </Text>
-                    )}
+                    )} */}
                   </View>
                 )}
               />

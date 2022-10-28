@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 /* eslint-disable consistent-return */
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -29,6 +30,7 @@ import "firebase/compat/firestore";
 import "firebase/compat/database";
 
 import { HourCard } from "../../components/HourCard";
+import { formatHourMinute, unformatHourMinute } from "../../utils/formatHour";
 
 export function EditRoutine({ route }) {
   const { itemId, itemName, itemDispenser, itemIndex } = route.params;
@@ -54,12 +56,16 @@ export function EditRoutine({ route }) {
         .database()
         .ref(itemDispenser)
         .on("value", (snapshot) => {
-          const infoPill = snapshot.val();
+          console.log(formatHourMinute(snapshot.val().horarios));
+          const infoPill = {
+            ...snapshot.val(),
+            horariosFormatados: formatHourMinute(snapshot.val().horarios),
+          };
           setInfo(infoPill);
 
-          if (infoPill.hours) {
+          if (infoPill.horariosFormatados) {
             setUpdatedHours(
-              infoPill.hours.sort((a, b) =>
+              infoPill.horariosFormatados.sort((a, b) =>
                 isAfter(
                   parse(a, "HH:mm", new Date()),
                   parse(b, "HH:mm", new Date())
@@ -97,10 +103,11 @@ export function EditRoutine({ route }) {
   const saveRemedy = async () => {
     try {
       const newItem = {
-        dispenser: itemDispenser,
-        hours: updatedHours,
+        slot: itemDispenser,
+        horariosFormatados: updatedHours,
+        horarios: unformatHourMinute(updatedHours),
         id: itemIndex,
-        name,
+        nome: name,
       };
 
       setInfo(newItem);
@@ -156,14 +163,16 @@ export function EditRoutine({ route }) {
     try {
       const removedHours = updatedHours.filter((item) => item !== hour);
       const updatedItem = {
-        dispenser: itemDispenser,
-        hours: removedHours,
+        slot: itemDispenser,
+        horariosFormatados: removedHours,
+        horarios: unformatHourMinute(removedHours),
         id: itemIndex,
-        name,
+        nome: name,
       };
 
       setInfo(updatedItem);
       const hourIndex = routine.findIndex((item) => item.hour === hour);
+      console.log(routine, hourIndex);
 
       if (routine[hourIndex].pills.length === 1) {
         routine.splice(hourIndex, 1);
@@ -183,7 +192,7 @@ export function EditRoutine({ route }) {
       addSnackbar(`Rotina removida com sucesso`);
     } catch (err) {
       setLoading(false);
-      console.debug(err);
+      console.log("ERRROR", err);
       addSnackbar(`Erro ao remover horário`);
     }
   };
@@ -193,9 +202,10 @@ export function EditRoutine({ route }) {
     try {
       const dispenser = firebase.database().ref(itemDispenser);
       dispenser.set({
-        dispenser: itemDispenser,
+        slot: parseInt(itemDispenser),
+        quantidade: 0,
         id: itemIndex,
-        name: null,
+        nome: null,
       });
 
       routine.forEach((item, index) => {
