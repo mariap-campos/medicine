@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ScrollView, View, Text, FlatList } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 import {
   ActivityIndicator,
   Divider,
@@ -32,7 +38,7 @@ export function Home() {
   const [routine, setRoutine] = useState([]);
   const [showDropDown, setShowDropDown] = useState(false);
   const [searchPill, setSearchPill] = useState("");
-  const [pillsList, setPillList] = useState();
+  const [pillsList, setPillList] = useState([]);
 
   const firebaseConfig = {
     apiKey: "AIzaSyCdyRG_G1Bg7rw7-QHvkF2YtoeB3bEJS88",
@@ -50,8 +56,52 @@ export function Home() {
 
   const getList = async () => {
     try {
-      const hourList = await AsyncStorage.getItem("HOURS");
+      firebase
+        .database()
+        .ref("0")
+        .on("value", (snapshot) => {
+          const status = [
+            {
+              ...snapshot.val(),
+              horariosFormatados: formatHourMinute(snapshot.val().horarios),
+            },
+          ];
+          firebase
+            .database()
+            .ref("1")
+            .on("value", (snapshotB) => {
+              status.push({
+                ...snapshotB.val(),
+                horariosFormatados: formatHourMinute(snapshotB.val().horarios),
+              });
+              firebase
+                .database()
+                .ref("2")
+                .on("value", (snapshotC) => {
+                  status.push({
+                    ...snapshotC.val(),
+                    horariosFormatados: formatHourMinute(
+                      snapshotC.val().horarios
+                    ),
+                  });
+                  firebase
+                    .database()
+                    .ref("3")
+                    .on("value", (snapshotD) => {
+                      status.push({
+                        ...snapshotD.val(),
+                        horariosFormatados: formatHourMinute(
+                          snapshotD.val().horarios
+                        ),
+                      });
 
+                      setPills(status);
+                    });
+                });
+            });
+        });
+
+      const hourList = await AsyncStorage.getItem("HOURS");
       if (!hourList) {
         setRoutine([]);
       } else {
@@ -78,53 +128,6 @@ export function Home() {
     });
 
     return updateList;
-  }, []);
-
-  useEffect(() => {
-    firebase
-      .database()
-      .ref("0")
-      .on("value", (snapshot) => {
-        const status = [
-          {
-            ...snapshot.val(),
-            horariosFormatados: formatHourMinute(snapshot.val().horarios),
-          },
-        ];
-        firebase
-          .database()
-          .ref("1")
-          .on("value", (snapshotB) => {
-            status.push({
-              ...snapshotB.val(),
-              horariosFormatados: formatHourMinute(snapshotB.val().horarios),
-            });
-            firebase
-              .database()
-              .ref("2")
-              .on("value", (snapshotC) => {
-                status.push({
-                  ...snapshotC.val(),
-                  horariosFormatados: formatHourMinute(
-                    snapshotC.val().horarios
-                  ),
-                });
-                firebase
-                  .database()
-                  .ref("3")
-                  .on("value", (snapshotD) => {
-                    status.push({
-                      ...snapshotD.val(),
-                      horariosFormatados: formatHourMinute(
-                        snapshotD.val().horarios
-                      ),
-                    });
-
-                    setPills(status);
-                  });
-              });
-          });
-      });
   }, []);
 
   useEffect(() => {
@@ -158,65 +161,70 @@ export function Home() {
           <View>
             <View style={globalStyles.flex}>
               <FlatList
+                columnWrapperStyle={{ justifyContent: "space-between" }}
                 style={styles.list}
-                columnWrapperStyle={{ justifyContent: "space-around" }}
                 data={pills}
                 keyExtractor={(pill) => pill.id}
                 numColumns={2}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item, index }) => (
-                  <View>
-                    {item.nome && (
+                  <TouchableOpacity
+                    style={[
+                      styles.slot,
+                      {
+                        borderColor: item.nome
+                          ? COLORS.BLUE
+                          : COLORS.GRAY_PRIMARY,
+                      },
+                    ]}
+                    onPress={() =>
+                      navigation.navigate("EditRoutine", {
+                        itemDispenser: item.slot.toString(),
+                        itemId: item.id,
+                        itemName: item.nome,
+                        itemIndex: index,
+                        itemQtd: item.quantidade,
+                      })
+                    }
+                  >
+                    <View>
+                      <IconButton
+                        icon={item.nome ? FilledCup : EmptyCup}
+                        color={item.nome ? COLORS.LIGHT_BLUE : COLORS.GRAY_DARK}
+                        size={35}
+                        style={{ marginLeft: -2 }}
+                      />
+                    </View>
+                    <View style={styles.info}>
+                      <Text
+                        style={[
+                          styles.infoText,
+                          {
+                            color: item.nome
+                              ? COLORS.LIGHT_BLUE
+                              : COLORS.GRAY_DARK,
+                            fontFamily: item.nome ? FONTS.BOLD : FONTS.REGULAR,
+                          },
+                        ]}
+                      >
+                        Slot: {item.slot}
+                      </Text>
+
                       <Text
                         style={{
-                          fontFamily: FONTS.BOLD,
+                          fontFamily: item.nome ? FONTS.BOLD : FONTS.REGULAR,
+                          fontSize: item.nome ? 14 : 12,
                           color: COLORS.GRAY_DARK,
-                          alignSelf: "center",
-                          marginBottom: -25,
                         }}
                       >
-                        {item.nome}
+                        {item.nome || "Vazio"}
                       </Text>
-                    )}
-                    <IconButton
-                      icon={item.nome ? FilledCup : EmptyCup}
-                      color={item.nome ? COLORS.LIGHT_BLUE : COLORS.GRAY_DARK}
-                      size={85}
-                      onPress={() =>
-                        navigation.navigate("EditRoutine", {
-                          itemDispenser: item.slot.toString(),
-                          itemId: item.id,
-                          itemName: item.nome,
-                          itemIndex: index,
-                        })
-                      }
-                    />
-                    <Text
-                      style={[
-                        globalStyles.text,
-                        styles.subtitle,
-                        {
-                          color: item.nome
-                            ? COLORS.LIGHT_BLUE
-                            : COLORS.GRAY_DARK,
-                        },
-                      ]}
-                    >
-                      {item.slot}
-                    </Text>
-                    {/* {item.nome && (
-                      <Text
-                        style={{
-                          fontFamily: FONTS.BOLD,
-                          color: COLORS.GRAY_DARK,
-                          alignSelf: "center",
-                          marginTop: -5,
-                        }}
-                      >
-                        {item.nome}
+
+                      <Text style={styles.infoText}>
+                        Quantidade: {item.quantidade}
                       </Text>
-                    )} */}
-                  </View>
+                    </View>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -226,7 +234,7 @@ export function Home() {
               style={[
                 globalStyles.title,
                 styles.title,
-                { marginTop: 40, marginBottom: 10 },
+                { marginTop: 20, marginBottom: 10 },
               ]}
             >
               Minha Rotina

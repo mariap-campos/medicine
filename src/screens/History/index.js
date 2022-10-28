@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text, FlatList } from "react-native";
 import { ActivityIndicator, Divider } from "react-native-paper";
 
+import firebase from "firebase/compat/app";
 import { Header } from "../../components/Header";
 import "react-native-get-random-values";
 
@@ -10,16 +11,19 @@ import { styles } from "./styles";
 
 import { HistoryCard } from "../../components/HistoryCard";
 import { COLORS } from "../../theme";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
+import "firebase/compat/database";
 
 export function History() {
   const [history, setHistory] = useState();
 
   const getData = () => {
-    // eslint-disable-next-line no-undef
-    fetch("https://api.jsonbin.io/b/629a0e0805f31f68b3b4efa1/1")
-      .then((response) => response.json())
-      .then((myJson) => {
-        setHistory(myJson);
+    firebase
+      .database()
+      .ref("historico")
+      .on("value", (snapshot) => {
+        setHistory(snapshot.val());
       });
   };
   useEffect(() => {
@@ -68,12 +72,13 @@ export function History() {
             renderItem={({ item }) => (
               <>
                 <Text style={[globalStyles.title, { fontSize: 14 }]}>
-                  {item.date}
+                  {item.data}
                 </Text>
                 <View style={{ marginBottom: 20 }}>
-                  {item.hours.map((hour) => (
-                    <HistoryCard hour={hour.hour} meds={hour.pills} />
-                  ))}
+                  <HistoryCard
+                    hour={`${item.hora}:${item.minuto}`}
+                    meds={item.slots}
+                  />
                 </View>
                 <Divider style={{ marginBottom: 10 }} />
               </>

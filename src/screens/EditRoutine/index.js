@@ -33,22 +33,24 @@ import { HourCard } from "../../components/HourCard";
 import { formatHourMinute, unformatHourMinute } from "../../utils/formatHour";
 
 export function EditRoutine({ route }) {
-  const { itemId, itemName, itemDispenser, itemIndex } = route.params;
+  const { itemId, itemName, itemDispenser, itemIndex, itemQtd } = route.params;
   const { addSnackbar } = useSnackBar();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteVisible, setDeleteVisible] = useState(false);
-  const [inputError, setInputError] = useState();
   const [hoursError, setHoursError] = useState();
-  const [name, setName] = useState(itemName);
   const [routine, setRoutine] = useState();
 
   const [updatedHours, setUpdatedHours] = useState();
   const [info, setInfo] = useState();
 
   const [time, setTime] = useState(format(new Date(), "HH:mm"));
+  const [name, setName] = useState(itemName);
+  const [inputError, setInputError] = useState();
+  const [qtd, setQtd] = useState(itemQtd);
+  const [qtdError, setQtdError] = useState();
 
   const getList = async () => {
     try {
@@ -56,7 +58,6 @@ export function EditRoutine({ route }) {
         .database()
         .ref(itemDispenser)
         .on("value", (snapshot) => {
-          console.log(formatHourMinute(snapshot.val().horarios));
           const infoPill = {
             ...snapshot.val(),
             horariosFormatados: formatHourMinute(snapshot.val().horarios),
@@ -108,6 +109,7 @@ export function EditRoutine({ route }) {
         horarios: unformatHourMinute(updatedHours),
         id: itemIndex,
         nome: name,
+        quantidade: qtd,
       };
 
       setInfo(newItem);
@@ -168,11 +170,11 @@ export function EditRoutine({ route }) {
         horarios: unformatHourMinute(removedHours),
         id: itemIndex,
         nome: name,
+        quantidade: qtd,
       };
 
       setInfo(updatedItem);
       const hourIndex = routine.findIndex((item) => item.hour === hour);
-      console.log(routine, hourIndex);
 
       if (routine[hourIndex].pills.length === 1) {
         routine.splice(hourIndex, 1);
@@ -192,7 +194,7 @@ export function EditRoutine({ route }) {
       addSnackbar(`Rotina removida com sucesso`);
     } catch (err) {
       setLoading(false);
-      console.log("ERRROR", err);
+
       addSnackbar(`Erro ao remover horário`);
     }
   };
@@ -276,7 +278,7 @@ export function EditRoutine({ route }) {
       <Portal>
         <Dialog visible={modalVisible} onDismiss={() => setModalVisible(false)}>
           <Dialog.Title>
-            {name} - Dispenser {itemDispenser}
+            {name} - Slot {itemDispenser}
           </Dialog.Title>
           <Image source={Animation} style={styles.animation} />
           <Dialog.Content>
@@ -286,11 +288,12 @@ export function EditRoutine({ route }) {
                 { marginTop: 20, textAlign: "justify" },
               ]}
             >
-              Ao clicar em salvar, não se esqueca de adicionar o remédio{" "}
-              <Text style={{ fontFamily: FONTS.BOLD }}>{name}</Text> no
+              Ao clicar em salvar, não se esqueca de adicionar{" "}
+              <Text style={{ fontFamily: FONTS.BOLD }}>{qtd} pílulas</Text> do
+              remédio <Text style={{ fontFamily: FONTS.BOLD }}>{name}</Text> no
               <Text style={{ fontFamily: FONTS.BOLD }}>
                 {" "}
-                Dispenser {itemDispenser}{" "}
+                Slot {itemDispenser}{" "}
               </Text>
               de seu dispenser automatico
             </Text>
@@ -313,8 +316,8 @@ export function EditRoutine({ route }) {
         <View style={styles.container}>
           <Text style={[globalStyles.title, styles.title]}>
             {itemName
-              ? `Editar Remédio - Dispenser ${itemDispenser}`
-              : `Novo Remédio - Dispenser ${itemDispenser}`}
+              ? `Editar Remédio - Slot ${itemDispenser}`
+              : `Novo Remédio - Slot ${itemDispenser}`}
           </Text>
           <TextInput
             label="Nome do Remédio"
@@ -326,6 +329,20 @@ export function EditRoutine({ route }) {
           {inputError && (
             <Text style={[globalStyles.text, { color: COLORS.RED }]}>
               Nome do remédio não pode ser nulo
+            </Text>
+          )}
+          <TextInput
+            style={{ marginTop: 24 }}
+            label="Quantidade de remédio"
+            value={qtd}
+            error={qtdError}
+            activeUnderlineColor={COLORS.LIGHT_BLUE}
+            onChangeText={(text) => setQtd(text)}
+            keyboardType="numeric"
+          />
+          {qtdError && (
+            <Text style={[globalStyles.text, { color: COLORS.RED }]}>
+              A quantidade de remédio no slot não pode ser nula
             </Text>
           )}
           <Text style={[globalStyles.text, { marginTop: 30 }]}>
@@ -415,6 +432,11 @@ export function EditRoutine({ route }) {
                   setInputError(true);
                 } else {
                   setInputError(false);
+                }
+                if (qtd === 0 || qtd === null) {
+                  setQtdError(true);
+                } else {
+                  setQtdError(false);
                 }
                 if (updatedHours.length === 0) {
                   setHoursError(true);

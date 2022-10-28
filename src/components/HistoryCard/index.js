@@ -77,7 +77,7 @@ export function HistoryCard({ hour, meds }) {
         <Divider style={{ marginVertical: 10 }} />
         {meds.map((item) => (
           <Chip style={{ marginBottom: 10 }} icon="circle-small">
-            {item}
+            Slot {item}
           </Chip>
         ))}
       </Animated.View>

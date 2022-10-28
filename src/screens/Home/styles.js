@@ -74,4 +74,20 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     display: "flex",
   },
+  slot: {
+    paddingVertical: 10,
+    borderWidth: 2,
+    width: "49%",
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  info: {
+    display: "flex",
+    justifyContent: "center",
+  },
+  infoText: {
+    fontSize: 12,
+    color: COLORS.GRAY_DARK,
+  },
 });
