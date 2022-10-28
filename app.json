@@ -1,14 +1,6 @@
 {
   "expo": {
-    "plugins": [
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#ffffff"
-        }
-      ]
-    ],
+    "plugins": [["expo-notifications"]],
     "name": "medicine",
     "slug": "medicine",
     "version": "1.0.0",
