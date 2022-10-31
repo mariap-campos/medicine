@@ -2,7 +2,10 @@
 export const formatHourMinute = (hours) => {
   if (hours) {
     return hours.map(
-      (item) => `${item.hora}:${item.minuto.toString().padStart(2, "0")}`
+      (item) =>
+        `${item.hora.toString().padStart(2, "0")}:${item.minuto
+          .toString()
+          .padStart(2, "0")}`
     );
   }
   return undefined;

@@ -347,12 +347,12 @@ export function Home() {
                           icon="pill"
                           textStyle={{ color: COLORS.GRAY_DARK }}
                         >
-                          {pill.name}
+                          {pill.nome}
                         </Chip>
                       </View>
-                    ) : searchPill.includes(pill.name) ? (
+                    ) : searchPill.includes(pill.nome) ? (
                       <View style={styles.cardSmall} key={pill.id}>
-                        <Chip icon="pill">{pill.name}</Chip>
+                        <Chip icon="pill">{pill.nome}</Chip>
                       </View>
                     ) : null
                   )}

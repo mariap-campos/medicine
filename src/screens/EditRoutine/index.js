@@ -143,12 +143,15 @@ export function EditRoutine({ route }) {
       if (routine.some((item) => item.hour === time)) {
         const index = routine.findIndex((item) => item.hour === time);
 
-        routine[index].pills = [...routine[index].pills, { name, id: itemId }];
+        routine[index].pills = [
+          ...routine[index].pills,
+          { nome: name, id: itemId },
+        ];
         setRoutine(routine);
       } else {
         const newHour = {
           hour: time,
-          pills: [{ name, id: itemId }],
+          pills: [{ nome: name, id: itemId }],
         };
 
         setRoutine([...routine, newHour]);
@@ -174,6 +177,7 @@ export function EditRoutine({ route }) {
       };
 
       setInfo(updatedItem);
+
       const hourIndex = routine.findIndex((item) => item.hour === hour);
 
       if (routine[hourIndex].pills.length === 1) {
@@ -191,7 +195,7 @@ export function EditRoutine({ route }) {
 
       getList();
       setLoading(false);
-      addSnackbar(`Rotina removida com sucesso`);
+      addSnackbar(`Horário removida com sucesso`);
     } catch (err) {
       setLoading(false);
 
