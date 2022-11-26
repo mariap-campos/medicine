@@ -15,4 +15,5 @@ export const unformatHourMinute = (hours) =>
   hours.map((item) => ({
     hora: parseInt(item.split(":")[0]),
     minuto: parseInt(item.split(":")[1]),
+    verificado: true,
   }));

@@ -31,6 +31,7 @@ import "firebase/compat/database";
 
 import { HourCard } from "../../components/HourCard";
 import { formatHourMinute, unformatHourMinute } from "../../utils/formatHour";
+import { formatSlot } from "../../utils/formatSlot";
 
 export function EditRoutine({ route }) {
   const { itemId, itemName, itemDispenser, itemIndex, itemQtd } = route.params;
@@ -112,10 +113,10 @@ export function EditRoutine({ route }) {
         quantidade: qtd,
       };
 
-      setInfo(newItem);
-
       const dispenser = firebase.database().ref(itemDispenser);
       dispenser.set(newItem);
+      setInfo(newItem);
+
       await AsyncStorage.setItem("HOURS", JSON.stringify(routine));
 
       addSnackbar(`Rotina salva com sucesso`);
@@ -297,7 +298,7 @@ export function EditRoutine({ route }) {
               remédio <Text style={{ fontFamily: FONTS.BOLD }}>{name}</Text> no
               <Text style={{ fontFamily: FONTS.BOLD }}>
                 {" "}
-                Slot {itemDispenser}{" "}
+                Slot {formatSlot(itemDispenser)}{" "}
               </Text>
               de seu dispenser automatico
             </Text>
@@ -320,8 +321,8 @@ export function EditRoutine({ route }) {
         <View style={styles.container}>
           <Text style={[globalStyles.title, styles.title]}>
             {itemName
-              ? `Editar Remédio - Slot ${itemDispenser}`
-              : `Novo Remédio - Slot ${itemDispenser}`}
+              ? `Editar Remédio - Slot ${formatSlot(itemDispenser)}`
+              : `Novo Remédio - Slot ${formatSlot(itemDispenser)}`}
           </Text>
           <TextInput
             label="Nome do Remédio"

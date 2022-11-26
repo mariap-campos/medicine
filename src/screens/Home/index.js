@@ -30,6 +30,7 @@ import "firebase/compat/auth";
 import "firebase/compat/firestore";
 import "firebase/compat/database";
 import { formatHourMinute } from "../../utils/formatHour";
+import { formatSlot } from "../../utils/formatSlot";
 
 export function Home() {
   const navigation = useNavigation();
@@ -41,13 +42,14 @@ export function Home() {
   const [pillsList, setPillList] = useState([]);
 
   const firebaseConfig = {
-    apiKey: "AIzaSyCdyRG_G1Bg7rw7-QHvkF2YtoeB3bEJS88",
-    authDomain: "medicine-49e2c.firebaseapp.com",
-    databaseURL: "https://medicine-49e2c-default-rtdb.firebaseio.com",
-    projectId: "medicine-49e2c",
-    storageBucket: "medicine-49e2c.appspot.com",
-    messagingSenderId: "44152165212",
-    appId: "1:44152165212:web:bbe6c4c64a58886087e799",
+    apiKey: "AIzaSyDw2xIQgf5sig1mCsn5TDjIRUov6jXu3jw",
+    authDomain: "dispensador-remedios.firebaseapp.com",
+    databaseURL: "https://dispensador-remedios-default-rtdb.firebaseio.com",
+    projectId: "dispensador-remedios",
+    storageBucket: "dispensador-remedios.appspot.com",
+    messagingSenderId: "18910608983",
+    appId: "1:18910608983:web:5482e3c5943f4b3d24ed12",
+    measurementId: "G-86D7ZNDKZ2",
   };
 
   if (!firebase.apps.length) {
@@ -207,7 +209,7 @@ export function Home() {
                           },
                         ]}
                       >
-                        Slot: {item.slot}
+                        Slot: {formatSlot(item.slot)}
                       </Text>
 
                       <Text
