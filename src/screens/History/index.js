@@ -76,8 +76,13 @@ export function History() {
                 </Text>
                 <View style={{ marginBottom: 20 }}>
                   <HistoryCard
-                    hour={`${item.hora}:${item.minuto}`}
-                    meds={item.slots}
+                    hour={`${item.hora
+                      .toString()
+                      .padStart(2, "0")}:${item.minuto
+                      .toString()
+                      .padStart(2, "0")}`}
+                    meds={item.slot}
+                    date={`${item.dia}/${item.mês.toString().padStart(2, "0")}`}
                   />
                 </View>
                 <Divider style={{ marginBottom: 10 }} />

@@ -105,12 +105,12 @@ export function EditRoutine({ route }) {
   const saveRemedy = async () => {
     try {
       const newItem = {
-        slot: itemDispenser,
+        slot: parseInt(itemDispenser),
         horariosFormatados: updatedHours,
         horarios: unformatHourMinute(updatedHours),
         id: itemIndex,
         nome: name,
-        quantidade: qtd,
+        quantidade: parseInt(qtd),
       };
 
       const dispenser = firebase.database().ref(itemDispenser);
@@ -169,12 +169,12 @@ export function EditRoutine({ route }) {
     try {
       const removedHours = updatedHours.filter((item) => item !== hour);
       const updatedItem = {
-        slot: itemDispenser,
+        slot: parseInt(itemDispenser),
         horariosFormatados: removedHours,
         horarios: unformatHourMinute(removedHours),
         id: itemIndex,
         nome: name,
-        quantidade: qtd,
+        quantidade: parseInt(qtd),
       };
 
       setInfo(updatedItem);
@@ -283,7 +283,7 @@ export function EditRoutine({ route }) {
       <Portal>
         <Dialog visible={modalVisible} onDismiss={() => setModalVisible(false)}>
           <Dialog.Title>
-            {name} - Slot {itemDispenser}
+            {name} - Slot {formatSlot(itemDispenser)}
           </Dialog.Title>
           <Image source={Animation} style={styles.animation} />
           <Dialog.Content>

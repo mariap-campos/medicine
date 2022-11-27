@@ -1,15 +1,35 @@
 /* eslint-disable react/destructuring-assignment */
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Text, View, Animated, TouchableOpacity } from "react-native";
-import { Button, Chip, Divider } from "react-native-paper";
+import { Chip, Divider, IconButton } from "react-native-paper";
+import firebase from "firebase/compat/app";
 import { styles } from "./styles";
 import { globalStyles } from "../../theme/globalStyles";
 import { COLORS } from "../../theme";
+import { unformatSlot } from "../../utils/formatSlot";
 
-export function HistoryCard({ hour, meds }) {
+export function HistoryCard({ hour, meds, date }) {
   const [expanded, setExpanded] = useState(false);
+  const [medicine, setMedicine] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const heightAnim = useRef(new Animated.Value(0)).current;
+
+  const getMedicine = async () => {
+    try {
+      firebase
+        .database()
+        .ref(unformatSlot(meds).toString())
+        .on("value", (snapshot) => {
+          setMedicine(snapshot.val().nome);
+        });
+    } catch (err) {
+      console.debug(err);
+    }
+  };
+
+  useEffect(() => {
+    getMedicine();
+  }, []);
 
   const theme = {
     colors: {
@@ -27,11 +47,15 @@ export function HistoryCard({ hour, meds }) {
 
   const collapse = () => {
     Animated.timing(heightAnim, {
-      toValue: expanded ? 0 : meds.length * 52,
+      toValue: expanded ? 0 : 52,
       duration: 300,
       useNativeDriver: false,
     }).start();
   };
+
+  if (!medicine) {
+    return null;
+  }
 
   return (
     <TouchableOpacity
@@ -59,12 +83,16 @@ export function HistoryCard({ hour, meds }) {
         >
           Ingerido
         </Chip>
-        <Text style={[globalStyles.title, styles.title]}>{hour}</Text>
+        <Text style={[globalStyles.title, styles.title]}>
+          {date} - {hour}
+        </Text>
       </View>
       <View />
-      <Button type="outlined" color={COLORS.GRAY_PRIMARY} style={styles.button}>
-        Expandir
-      </Button>
+      <IconButton
+        icon={expanded ? "chevron-up" : "chevron-down"}
+        size={20}
+        style={styles.button}
+      />
       <Animated.View
         style={[
           styles.expand,
@@ -75,11 +103,9 @@ export function HistoryCard({ hour, meds }) {
         ]}
       >
         <Divider style={{ marginVertical: 10 }} />
-        {meds.map((item) => (
-          <Chip style={{ marginBottom: 10 }} icon="circle-small">
-            Slot {item}
-          </Chip>
-        ))}
+        <Chip style={{ marginBottom: 10 }} icon="circle-small">
+          Slot {meds} - {medicine}
+        </Chip>
       </Animated.View>
     </TouchableOpacity>
   );
